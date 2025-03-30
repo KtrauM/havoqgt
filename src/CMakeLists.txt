@@ -10,9 +10,13 @@ function(add_exe source)
       include_link_umap(${source})
     endif()
     include_directories(${source})
+    # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../external/KaMPIng/include)
+    target_link_libraries(${source} kamping::kamping)
     install(TARGETS ${source} DESTINATION bin)
   endif( MPI_FOUND AND Boost_FOUND )
 endfunction()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../external/KaMPIng ${CMAKE_CURRENT_BINARY_DIR}/KaMPIng)
 
 add_exe( generate_rmat )
 add_exe( generate_rmat_edge_list )

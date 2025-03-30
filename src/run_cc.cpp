@@ -21,6 +21,9 @@
 
 #include <boost/interprocess/managed_heap_memory.hpp>
 
+#include <kamping/measurements/timer.hpp>
+#include <kamping/measurements/printer.hpp>
+
 using namespace havoqgt;
 
 void usage() {
@@ -139,6 +142,7 @@ int main(int argc, char** argv) {
 
     MPI_Barrier(MPI_COMM_WORLD);
     double time_start = MPI_Wtime();
+    kamping::measurements::timer().synchronize_and_start("run_cc");
     if (!has_edge_filter) {
       connected_components(graph, cc_data);
     } else {
@@ -161,6 +165,7 @@ int main(int argc, char** argv) {
       connected_components(graph, cc_data, v_predicate, e_predicate);
     }
     MPI_Barrier(MPI_COMM_WORLD);
+    kamping::measurements::timer().stop();
     double time_end = MPI_Wtime();
 
     if (print_threshold > 0) {
@@ -212,6 +217,9 @@ int main(int argc, char** argv) {
                   << std::endl;
       }
     }
+    
+    kamping::measurements::timer().aggregate_and_print(kamping::measurements::SimpleJsonPrinter<>{std::cout});
+
     if (output_base_filename.size() > 0) {
       std::stringstream output_filename;
       output_filename << output_base_filename << "_" << mpi_rank;

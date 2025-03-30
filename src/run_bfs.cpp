@@ -14,6 +14,8 @@
 #include <boost/function.hpp>
 
 #include <assert.h>
+#include <kamping/measurements/timer.hpp>
+#include <kamping/measurements/printer.hpp>
 
 #include <deque>
 #include <string>
@@ -159,11 +161,12 @@ int main(int argc, char** argv) {
 
       MPI_Barrier(MPI_COMM_WORLD);
       double time_start = MPI_Wtime();
+      kamping::measurements::timer().synchronize_and_start("run_bfs");
       havoqgt::breadth_first_search(graph, bfs_level_data, bfs_parent_data,
           source);
       MPI_Barrier(MPI_COMM_WORLD);
+      kamping::measurements::timer().stop();
       double time_end = MPI_Wtime();
-
       uint64_t visited_total(0);
       for (uint64_t level = 0; level < std::numeric_limits<uint16_t>::max(); ++level) {
         uint64_t local_count(0);
@@ -210,6 +213,7 @@ int main(int argc, char** argv) {
       std::cout << "Count BFS = " << count << std::endl;
       std::cout << "AVERAGE BFS = " << time / double(count) << std::endl;
     }
+    kamping::measurements::timer().aggregate_and_print(kamping::measurements::SimpleJsonPrinter<>{std::cout});
   }  // End BFS Test
   }  // END Main MPI
   ;
