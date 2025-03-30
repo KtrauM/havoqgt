@@ -9,6 +9,7 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 using graph_t = std::map<uint64_t, std::vector<uint64_t>>;
 
