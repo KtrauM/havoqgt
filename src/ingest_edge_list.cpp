@@ -64,7 +64,7 @@ void parse_cmd_line(int argc, char** argv, std::string& output_filename,
   bool found_output_filename = false;
   delegate_threshold         = 1048576;
   input_filenames.clear();
-  gbyte_per_rank   = 0.25;
+  gbyte_per_rank   = 0.01;
   partition_passes = 1;
   chunk_size       = 8 * 1024;
   undirected       = false;
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
                   << " files." << std::endl;
       }
 
-      distributed_db ddb(db_create(), output_filename.c_str());
+      distributed_db ddb(db_create(), output_filename.c_str(), gbyte_per_rank);
 
       auto edge_data_ptr =
           ddb.get_manager()
