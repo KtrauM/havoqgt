@@ -133,19 +133,16 @@ int main(int argc, char** argv) {
     uint64_t isource = source_vertex;
       graph_type::vertex_locator source = graph->label_to_locator(isource);
       uint64_t global_degree(0);
-      do {
-        uint64_t local_degree = 0;
-        source = graph->label_to_locator(isource);
-        if (source.is_delegate()) {
-          break;
-        }
-        if (uint32_t(mpi_rank) == source.owner()) {
-          local_degree = graph->degree(source);
-        }
-        global_degree = mpi_all_reduce(local_degree, std::greater<uint64_t>(),
-            MPI_COMM_WORLD);
-        if(global_degree == 0) ++isource;
-      } while (global_degree == 0);
+      uint64_t local_degree = 0;
+      source = graph->label_to_locator(isource);
+      if (uint32_t(mpi_rank) == source.owner()) {
+        local_degree = graph->degree(source);
+      }
+      global_degree = mpi_all_reduce(local_degree, std::greater<uint64_t>(),
+          MPI_COMM_WORLD);
+      if(global_degree == 0) {
+        throw std::domain_error("Source vertex is isolated!");
+      }
       if (uint32_t(mpi_rank) == source.owner()) {
         if(isource != source_vertex) {
           std::cout << "Vertex " << source_vertex << " has a degree of 0.   New source vertex = " << isource << std::endl;
